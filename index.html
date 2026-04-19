@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>나고야 4박5일 가족 여행 플래너</title>
+  <style>
+    :root {
+      --orange: #FF6B35;
+      --orange-light: #FF8C5A;
+      --yellow: #FFD166;
+      --teal: #06D6A0;
+      --blue: #118AB2;
+      --dark: #073B4C;
+      --bg: #FFF8F0;
+      --card: #ffffff;
+      --text: #2D3436;
+      --muted: #636e72;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #ffe0cc;
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .nav-brand { font-weight: 800; font-size: 1rem; color: var(--orange); }
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-links a { text-decoration: none; color: var(--muted); font-size: 0.875rem; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--orange); }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 40%, #FFD166 100%);
+      color: white; padding: 5rem 2rem 4rem; text-align: center; position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+    }
+    .hero-badge {
+      display: inline-block; background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 50px; padding: 0.35rem 1rem; font-size: 0.8rem; font-weight: 600;
+      margin-bottom: 1.5rem; letter-spacing: 0.05em;
+    }
+    .hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; line-height: 1.15; margin-bottom: 1rem; position: relative; }
+    .hero-sub { font-size: 1.1rem; opacity: 0.9; margin-bottom: 2.5rem; position: relative; }
+    .hero-stats {
+      display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; position: relative;
+    }
+    .stat {
+      background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 12px; padding: 0.75rem 1.5rem; text-align: center;
+    }
+    .stat-num { font-size: 1.5rem; font-weight: 800; display: block; }
+    .stat-label { font-size: 0.75rem; opacity: 0.85; }
+    .scroll-hint { margin-top: 3rem; font-size: 0.8rem; opacity: 0.7; letter-spacing: 0.1em; animation: bounce 2s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+    /* SECTION */
+    section { padding: 4rem 1rem; max-width: 860px; margin: 0 auto; }
+    .section-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .section-sub { color: var(--muted); margin-bottom: 2rem; font-size: 0.95rem; }
+
+    /* AGENTS */
+    #agents { background: white; max-width: 100%; padding: 4rem 1rem; }
+    .agents-inner { max-width: 860px; margin: 0 auto; }
+    .agents-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 2rem; }
+    .agent-card {
+      border-radius: var(--radius); padding: 1.5rem 1rem; text-align: center;
+      border: 2px solid transparent; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .agent-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+    .agent-card.a1 { background: #fff3ee; border-color: #ffd6c4; }
+    .agent-card.a2 { background: #f0fff8; border-color: #b2ffe0; }
+    .agent-card.a3 { background: #f0f8ff; border-color: #b2d9ff; }
+    .agent-card.a4 { background: #fffbf0; border-color: #ffe8a0; }
+    .agent-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .agent-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.4rem; }
+    .agent-role { font-size: 0.8rem; color: var(--muted); }
+
+    /* BUDGET */
+    .budget-toggle {
+      display: flex; gap: 0.5rem; margin-bottom: 1.5rem; background: #f4f4f4;
+      border-radius: 50px; padding: 4px; width: fit-content;
+    }
+    .budget-btn {
+      border: none; background: none; padding: 0.5rem 1.25rem; border-radius: 50px;
+      font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; color: var(--muted);
+    }
+    .budget-btn.active { background: var(--orange); color: white; box-shadow: 0 2px 8px rgba(255,107,53,0.4); }
+    .budget-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    .budget-item {
+      background: white; border-radius: var(--radius); padding: 1.25rem 1.5rem;
+      border-left: 4px solid var(--orange); box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .budget-cat { font-size: 0.8rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .budget-amount { font-size: 1.3rem; font-weight: 800; color: var(--dark); margin-top: 0.25rem; }
+    .budget-note { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; }
+    .budget-total {
+      margin-top: 1.25rem; background: linear-gradient(135deg, var(--orange), var(--orange-light));
+      color: white; border-radius: var(--radius); padding: 1.25rem 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .budget-total-label { font-size: 0.9rem; font-weight: 600; opacity: 0.9; }
+    .budget-total-amount { font-size: 1.8rem; font-weight: 900; }
+
+    /* ITINERARY */
+    .day-card {
+      background: white; border-radius: var(--radius); margin-bottom: 1rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07); overflow: hidden;
+      border: 1px solid #f0e8e0;
+    }
+    .day-header {
+      display: flex; align-items: center; gap: 1rem; padding: 1.25rem 1.5rem;
+      cursor: pointer; user-select: none;
+      transition: background 0.2s;
+    }
+    .day-header:hover { background: #fff8f4; }
+    .day-badge {
+      background: linear-gradient(135deg, var(--orange), var(--orange-light));
+      color: white; border-radius: 10px; padding: 0.4rem 0.9rem;
+      font-size: 0.8rem; font-weight: 800; white-space: nowrap;
+    }
+    .day-title { font-weight: 700; font-size: 1rem; flex: 1; }
+    .day-emoji { font-size: 1.4rem; }
+    .day-chevron { font-size: 0.9rem; color: var(--muted); transition: transform 0.3s; margin-left: auto; }
+    .day-card.open .day-chevron { transform: rotate(180deg); }
+    .day-body { display: none; padding: 0 1.5rem 1.5rem; border-top: 1px solid #f5ede6; }
+    .day-card.open .day-body { display: block; }
+    .timeline { margin-top: 1rem; }
+    .tl-item { display: flex; gap: 1rem; margin-bottom: 1.25rem; align-items: flex-start; }
+    .tl-time { min-width: 70px; font-size: 0.8rem; font-weight: 700; color: var(--orange); padding-top: 2px; }
+    .tl-dot-wrap { display: flex; flex-direction: column; align-items: center; }
+    .tl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--orange); flex-shrink: 0; margin-top: 5px; }
+    .tl-line { width: 2px; flex: 1; background: #ffd6c4; margin-top: 4px; min-height: 30px; }
+    .tl-item:last-child .tl-line { display: none; }
+    .tl-content h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .tl-content p { font-size: 0.82rem; color: var(--muted); }
+    .tl-tag {
+      display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 0.15rem 0.5rem;
+      border-radius: 50px; margin-top: 0.35rem;
+    }
+    .tag-must { background: #ffe8e0; color: var(--orange); }
+    .tag-food { background: #e8f8f0; color: #00a86b; }
+    .tag-move { background: #e8f0ff; color: #3366ff; }
+    .tag-tip { background: #fff8e0; color: #cc9900; }
+
+    /* LOCAL GUIDE */
+    #guide { background: white; max-width: 100%; padding: 4rem 1rem; }
+    .guide-inner { max-width: 860px; margin: 0 auto; }
+    .guide-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 2rem; }
+    .guide-card {
+      background: var(--bg); border-radius: var(--radius); padding: 1.25rem 1.5rem;
+      border: 1px solid #f0e8e0;
+    }
+    .guide-card-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+    .guide-card ul { list-style: none; }
+    .guide-card li { font-size: 0.85rem; color: var(--muted); padding: 0.3rem 0; border-bottom: 1px solid #ede5dc; }
+    .guide-card li:last-child { border-bottom: none; }
+    .guide-card li strong { color: var(--text); }
+
+    /* FOOTER */
+    footer {
+      text-align: center; padding: 2.5rem 1rem;
+      background: var(--dark); color: rgba(255,255,255,0.5); font-size: 0.82rem;
+    }
+    footer strong { color: rgba(255,255,255,0.8); }
+
+    @media (max-width: 600px) {
+      nav { padding: 0 1rem; }
+      .nav-links { gap: 1rem; }
+      .hero { padding: 3.5rem 1rem 3rem; }
+      .hero-stats { gap: 0.75rem; }
+      .stat { padding: 0.6rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">🏯 나고야 가족여행</div>
+  <div class="nav-links">
+    <a href="#agents">AI 팀</a>
+    <a href="#budget">예산</a>
+    <a href="#itinerary">일정</a>
+    <a href="#guide">현지정보</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">✈️ ICN → NGO · 4박 5일 · 4인 가족</div>
+  <h1>나고야 가족여행<br/>완벽 플래너</h1>
+  <p class="hero-sub">레고랜드 · 호빵맨뮤지엄 · 나고야항수족관 · 나고야성<br/>아이와 함께하는 최고의 일본 여행</p>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-num">4박 5일</span><span class="stat-label">총 여행 기간</span></div>
+    <div class="stat"><span class="stat-num">4명</span><span class="stat-label">성인 2 + 아동 2</span></div>
+    <div class="stat"><span class="stat-num">4곳</span><span class="stat-label">필수 방문지</span></div>
+    <div class="stat"><span class="stat-num">나고야</span><span class="stat-label">아이치현 주부 지방</span></div>
+  </div>
+  <div class="scroll-hint">▼ SCROLL</div>
+</div>
+
+<!-- AGENTS -->
+<section id="agents" style="background:white; max-width:100%; padding:4rem 1rem;">
+  <div class="agents-inner">
+    <div class="section-title">🤖 AI 여행 플래닝 팀</div>
+    <div class="section-sub">4명의 전문 AI 에이전트가 협력하여 최적의 가족 여행 일정을 설계했습니다.</div>
+    <div class="agents-grid">
+      <div class="agent-card a1">
+        <div class="agent-icon">🔍</div>
+        <div class="agent-name">목적지 분석가</div>
+        <div class="agent-role">나고야 관광지·계절·비자·안전 정보 분석</div>
+      </div>
+      <div class="agent-card a2">
+        <div class="agent-icon">🗓️</div>
+        <div class="agent-name">일정 설계사</div>
+        <div class="agent-role">동선 최적화·시간 배분·아동 친화 코스 설계</div>
+      </div>
+      <div class="agent-card a3">
+        <div class="agent-icon">💰</div>
+        <div class="agent-name">예산 매니저</div>
+        <div class="agent-role">항공·숙소·입장료·식비 최적 예산 계획</div>
+      </div>
+      <div class="agent-card a4">
+        <div class="agent-icon">🗺️</div>
+        <div class="agent-name">현지 가이드</div>
+        <div class="agent-role">교통·맛집·문화·아동 유의사항 안내</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BUDGET -->
+<section id="budget">
+  <div class="section-title">💰 예산 계획</div>
+  <div class="section-sub">4인 가족(성인 2 + 아동 2) 기준 총 여행 예산 · 항공권 포함</div>
+  <div class="budget-toggle">
+    <button class="budget-btn active" onclick="setBudget('save',this)">💚 절약형</button>
+    <button class="budget-btn" onclick="setBudget('normal',this)">💛 보통형</button>
+    <button class="budget-btn" onclick="setBudget('luxury',this)">💜 럭셔리형</button>
+  </div>
+
+  <div class="budget-grid" id="budget-grid"></div>
+  <div class="budget-total">
+    <div class="budget-total-label">4인 가족 총 예상 비용</div>
+    <div class="budget-total-amount" id="budget-total-amount">₩3,090,000</div>
+  </div>
+</section>
+
+<!-- ITINERARY -->
+<section id="itinerary">
+  <div class="section-title">🗓️ 5일 여행 일정</div>
+  <div class="section-sub">아이들이 지치지 않도록 오전 집중 관광 + 오후 여유 있는 동선으로 설계했습니다.</div>
+
+  <!-- DAY 1 -->
+  <div class="day-card" id="day1">
+    <div class="day-header" onclick="toggleDay('day1')">
+      <div class="day-badge">DAY 1</div>
+      <div class="day-emoji">✈️</div>
+      <div class="day-title">도착의 날 — 나고야 입성 & 사카에 탐방</div>
+      <div class="day-chevron">▼</div>
+    </div>
+    <div class="day-body">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-time">오전</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>✈️ 인천 출발 → 나고야 도착</h4>
+            <p>센트레아 국제공항(NGO) 도착 · 입국 심사</p>
+            <span class="tl-tag tag-move">이동</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">12:00</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🚆 공항→나고야역 이동</h4>
+            <p>메이테쓰 공항특급 '뮤스카이' 28분 · 성인 ¥1,360, 아동 ¥680</p>
+            <span class="tl-tag tag-move">이동</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">13:00</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🏨 호텔 체크인 & 짐 정리</h4>
+            <p>나고야역 또는 사카에 인근 숙소 추천</p>
+            <span class="tl-tag tag-tip">꿀팁</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">15:00</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🛍️ 오아시스 21 & 사카에 산책</h4>
+            <p>유리 광장에서 사진 촬영 · 아이들이 좋아하는 공간</p>
+            <span class="tl-tag tag-tip">추천</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">17:30</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🍜 저녁 — 나고야 명물 미소 라멘</h4>
+            <p>야마짱 or 스가키야 · 진한 붉은 미소 국물</p>
+            <span class="tl-tag tag-food">식사</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">19:30</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🌃 나고야 TV 타워 야경 감상</h4>
+            <p>사카에 랜드마크 · 라이트업된 타워 외관만 감상도 OK</p>
+            <span class="tl-tag tag-tip">선택</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 2 -->
+  <div class="day-card" id="day2">
+    <div class="day-header" onclick="toggleDay('day2')">
+      <div class="day-badge">DAY 2</div>
+      <div class="day-emoji">🧱</div>
+      <div class="day-title">레고의 날 — 레고랜드 재팬 하루 종일</div>
+      <div class="day-chevron">▼</div>
+    </div>
+    <div class="day-body">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-time">08:00</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🍳 호텔 조식 & 출발 준비</h4>
+            <p>아이들 선크림·모자 챙기기 · 편한 신발 필수</p>
+            <span class="tl-tag tag-tip">꿀팁</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">09:00</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🚆 레고랜드 이동</h4>
+            <p>아오나미선 킨조후토역 하차 → 도보 5분</p>
+            <span class="tl-tag tag-move">이동</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">10:00</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🧱 레고랜드 재팬 입장</h4>
+            <p>성인 ¥3,800 / 아동 ¥2,700 · 7개 테마 존 · 60개 이상 어트랙션</p>
+            <span class="tl-tag tag-must">필수</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">12:00</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🍔 레고랜드 내 식사</h4>
+            <p>BRICKS FAMILY RESTAURANT · 레고 모양 식판 포토존</p>
+            <span class="tl-tag tag-food">식사</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">13:00~17:00</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🎢 오후 어트랙션 집중 공략</h4>
+            <p>드래곤 코스터 · 레고 닌자고 · 미니랜드 (일본 명소 레고 재현)</p>
+            <span class="tl-tag tag-must">필수</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">18:00</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🍣 저녁 — 킨조후토 & 귀가</h4>
+            <p>인근 회전초밥 · 아이들 좋아하는 메뉴 다양</p>
+            <span class="tl-tag tag-food">식사</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 3 -->
+  <div class="day-card" id="day3">
+    <div class="day-header" onclick="toggleDay('day3')">
+      <div class="day-badge">DAY 3</div>
+      <div class="day-emoji">🐟</div>
+      <div class="day-title">항구의 날 — 호빵맨뮤지엄 + 나고야항수족관</div>
+      <div class="day-chevron">▼</div>
+    </div>
+    <div class="day-body">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-time">09:30</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🍞 나고야 호빵맨 어린이 뮤지엄</h4>
+            <p>성인 ¥2,200 / 아동 ¥2,200 · 만 1세~취학 전 아이들 최고 인기</p>
+            <span class="tl-tag tag-must">필수</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">11:30</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🎡 호빵맨 쇼핑몰 & 굿즈 쇼핑</h4>
+            <p>호빵맨 빵 · 한정 굿즈 쇼핑 · 아이 선물 구매</p>
+            <span class="tl-tag tag-tip">추천</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">12:30</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🍱 점심 — 항구 주변 식당</h4>
+            <p>나고야항 부두 근처 해산물 덮밥 or 회전초밥</p>
+            <span class="tl-tag tag-food">식사</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">14:00</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🐳 나고야항 수족관</h4>
+            <p>성인 ¥2,030 / 아동 ¥1,010 · 범고래 쇼·돌고래 쇼 · 일본 최대급</p>
+            <span class="tl-tag tag-must">필수</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">15:30</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🎪 돌고래 쇼 & 범고래 쇼 관람</h4>
+            <p>사전 좌석 확보 중요 · 물 튀김 구역 주의 (우비 준비)</p>
+            <span class="tl-tag tag-tip">꿀팁</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">17:30</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🌮 저녁 — 오스 상점가 탐방</h4>
+            <p>타코야키·야키소바 길거리 음식 · 아이들 좋아하는 분위기</p>
+            <span class="tl-tag tag-food">식사</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 4 -->
+  <div class="day-card" id="day4">
+    <div class="day-header" onclick="toggleDay('day4')">
+      <div class="day-badge">DAY 4</div>
+      <div class="day-emoji">🏯</div>
+      <div class="day-title">역사의 날 — 나고야성 & 도쿠가와엔</div>
+      <div class="day-chevron">▼</div>
+    </div>
+    <div class="day-body">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-time">09:00</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🏯 나고야성 입장</h4>
+            <p>성인 ¥500 / 중학생 이하 무료 · 혼마루 어전 체험 · 금상어 포토존</p>
+            <span class="tl-tag tag-must">필수</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">10:30</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>👘 혼마루 어전 전통 의상 체험</h4>
+            <p>사무라이·공주 의상 대여 · 가족 사진 최고의 포토존</p>
+            <span class="tl-tag tag-tip">추천</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">12:00</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🍱 점심 — 히쓰마부시 (장어 덮밥)</h4>
+            <p>나고야 3대 명물 · 봉노쿠니야 or 히쓰마부시 빈초 추천</p>
+            <span class="tl-tag tag-food">식사</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">14:00</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🌿 도쿠가와엔 일본 정원 산책</h4>
+            <p>300년 역사 대표 일본 정원 · 잉어 먹이주기 체험 · 아이들 인기</p>
+            <span class="tl-tag tag-tip">추천</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">16:00</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🛍️ 나고야역 지하상가 쇼핑</h4>
+            <p>에스카 · 유니몰 · 멘쿠이요코초 (나고야 명물 음식 거리)</p>
+            <span class="tl-tag tag-tip">쇼핑</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">18:30</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🍗 저녁 — 데바사키 (나고야 간장 닭날개)</h4>
+            <p>야마짱 본점 · 甘辛 양념의 나고야 소울푸드 · 아이들도 OK</p>
+            <span class="tl-tag tag-food">식사</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 5 -->
+  <div class="day-card" id="day5">
+    <div class="day-header" onclick="toggleDay('day5')">
+      <div class="day-badge">DAY 5</div>
+      <div class="day-emoji">🛫</div>
+      <div class="day-title">귀국의 날 — 마지막 쇼핑 & 인천 귀환</div>
+      <div class="day-chevron">▼</div>
+    </div>
+    <div class="day-body">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-time">07:30</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🍳 호텔 조식 & 체크아웃</h4>
+            <p>짐 정리 · 호텔 물품 반납 · 공항 시간 역산 계획</p>
+            <span class="tl-tag tag-tip">꿀팁</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">09:00</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🛍️ 마지막 쇼핑 — 나고야역 타카시마야</h4>
+            <p>나고야 명과 '유카리' · 에비센 · 초콜릿 봉봉 등 기념품</p>
+            <span class="tl-tag tag-tip">추천</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">10:30</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🚆 센트레아 공항 이동</h4>
+            <p>메이테쓰 뮤스카이 · 아이 짐 미리 확인 · 충분한 여유 시간</p>
+            <span class="tl-tag tag-move">이동</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">12:00</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>🍜 공항 내 마지막 식사</h4>
+            <p>센트레아 4F 레스토랑 · 미소카츠 or 키시멘 (나고야 마지막 맛)</p>
+            <span class="tl-tag tag-food">식사</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">출발 전</div>
+          <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-content">
+            <h4>✈️ 인천국제공항 귀환</h4>
+            <p>즐거운 추억과 함께 안전한 귀국!</p>
+            <span class="tl-tag tag-must">귀국</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOCAL GUIDE -->
+<section id="guide" style="background:white; max-width:100%; padding:4rem 1rem;">
+  <div class="guide-inner">
+    <div class="section-title">🗺️ 현지 정보 가이드</div>
+    <div class="section-sub">나고야 가족 여행에 필요한 핵심 정보를 정리했습니다.</div>
+    <div class="guide-grid">
+      <div class="guide-card">
+        <div class="guide-card-title">🚇 교통 수단</div>
+        <ul>
+          <li><strong>메이테쓰 뮤스카이</strong> 공항↔나고야역 28분</li>
+          <li><strong>지하철 1일권</strong> ¥740 / 아동 ¥370</li>
+          <li><strong>아오나미선</strong> → 레고랜드 (킨조후토역)</li>
+          <li><strong>메이코선</strong> → 나고야항 (나고야코역)</li>
+          <li><strong>IC카드</strong> (토이카) 탑승 편리 · 구매 추천</li>
+        </ul>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-title">🍽️ 나고야 명물 음식</div>
+        <ul>
+          <li><strong>히쓰마부시</strong> 장어 덮밥 · 3가지 방식으로</li>
+          <li><strong>미소카츠</strong> 된장 소스 돈카츠 · 야바톤</li>
+          <li><strong>데바사키</strong> 간장 닭날개 · 야마짱</li>
+          <li><strong>미소 라멘</strong> 진한 붉은 된장 국물</li>
+          <li><strong>키시멘</strong> 납작면 우동 · 역 플랫폼 명물</li>
+        </ul>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-title">👶 아동 동반 팁</div>
+        <ul>
+          <li><strong>유모차</strong> 레고랜드·수족관 무료 대여 가능</li>
+          <li><strong>레고랜드</strong> 신장 제한 어트랙션 사전 확인</li>
+          <li><strong>수족관 쇼</strong> 30분 전 좌석 선점 필수</li>
+          <li><strong>낮잠 시간</strong> 오후 일정에 여유 30분 확보</li>
+          <li><strong>물·간식</strong> 편의점에서 미리 구매 절약</li>
+        </ul>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-title">📱 필수 앱 & 준비물</div>
+        <ul>
+          <li><strong>Google 지도</strong> 오프라인 저장 필수</li>
+          <li><strong>Google 번역</strong> 카메라 번역 기능 활용</li>
+          <li><strong>포켓 Wi-Fi</strong> or 일본 유심 (4인 이상 포켓 추천)</li>
+          <li><strong>여행자 보험</strong> 아동 포함 필수 가입</li>
+          <li><strong>엔화 환전</strong> 30~40만원 준비 (카드 병행)</li>
+        </ul>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-title">🌤️ 날씨 & 계절</div>
+        <ul>
+          <li><strong>봄(3~5월)</strong> 벚꽃 시즌 · 최고 관광 시즌</li>
+          <li><strong>여름(6~8월)</strong> 고온다습 · 레고랜드 워터존 인기</li>
+          <li><strong>가을(9~11월)</strong> 단풍 · 도쿠가와엔 절경</li>
+          <li><strong>겨울(12~2월)</strong> 온난 · 성수기 외 저렴</li>
+          <li><strong>태풍</strong> 8~9월 주의 · 일정 유연하게</li>
+        </ul>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-title">🆘 긴급 연락처</div>
+        <ul>
+          <li><strong>경찰</strong> 110</li>
+          <li><strong>소방/구급</strong> 119</li>
+          <li><strong>주나고야 한국총영사관</strong> 052-586-9221</li>
+          <li><strong>나고야 관광 안내소</strong> 나고야역 내 위치</li>
+          <li><strong>나고야대학 병원</strong> 052-741-2111</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>🏯 <strong>나고야 4박5일 가족여행 플래너</strong> · AI 에이전트 팀이 설계한 최적 일정</p>
+  <p style="margin-top:0.5rem;">레고랜드 · 호빵맨뮤지엄 · 나고야항수족관 · 나고야성 · 4인 가족 특화</p>
+</footer>
+
+<script>
+  const budgetData = {
+    save: {
+      items: [
+        { cat: '항공권', amount: '₩1,200,000', note: '4인 (이스타·에어서울 기준)' },
+        { cat: '숙소 4박', amount: '₩600,000', note: '비즈니스호텔 ¥12,000/박' },
+        { cat: '입장료', amount: '₩480,000', note: '4곳 필수 관광지 4인' },
+        { cat: '식비', amount: '₩400,000', note: '4박5일 외식 절약형' },
+        { cat: '교통비', amount: '₩150,000', note: '지하철·전철 1일권 활용' },
+        { cat: '쇼핑·기타', amount: '₩260,000', note: '기념품·간식·잡비' },
+      ],
+      total: '₩3,090,000'
+    },
+    normal: {
+      items: [
+        { cat: '항공권', amount: '₩1,800,000', note: '4인 (진에어·아시아나 기준)' },
+        { cat: '숙소 4박', amount: '₩900,000', note: '3성급 호텔 ¥18,000/박' },
+        { cat: '입장료', amount: '₩480,000', note: '4곳 필수 관광지 4인' },
+        { cat: '식비', amount: '₩600,000', note: '4박5일 외식 보통형' },
+        { cat: '교통비', amount: '₩200,000', note: '지하철+택시 적절 혼합' },
+        { cat: '쇼핑·기타', amount: '₩460,000', note: '기념품·굿즈·여유 자금' },
+      ],
+      total: '₩4,440,000'
+    },
+    luxury: {
+      items: [
+        { cat: '항공권', amount: '₩2,800,000', note: '4인 (대한항공·ANA 기준)' },
+        { cat: '숙소 4박', amount: '₩1,600,000', note: '4성급 ¥30,000/박' },
+        { cat: '입장료', amount: '₩540,000', note: '필수 4곳 + 레고랜드 연간권' },
+        { cat: '식비', amount: '₩900,000', note: '히쓰마부시 전문점 등 고급' },
+        { cat: '교통비', amount: '₩300,000', note: '공항 픽업 포함 택시·전철' },
+        { cat: '쇼핑·기타', amount: '₩800,000', note: '굿즈·명품 기념품' },
+      ],
+      total: '₩6,940,000'
+    }
+  };
+
+  function setBudget(type, btn) {
+    document.querySelectorAll('.budget-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const data = budgetData[type];
+    const grid = document.getElementById('budget-grid');
+    grid.innerHTML = data.items.map(i => `
+      <div class="budget-item">
+        <div class="budget-cat">${i.cat}</div>
+        <div class="budget-amount">${i.amount}</div>
+        <div class="budget-note">${i.note}</div>
+      </div>
+    `).join('');
+    document.getElementById('budget-total-amount').textContent = data.total;
+  }
+
+  function toggleDay(id) {
+    const card = document.getElementById(id);
+    card.classList.toggle('open');
+  }
+
+  // Init budget
+  setBudget('save', document.querySelector('.budget-btn'));
+</script>
+</body>
+</html>
