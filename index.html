@@ -174,6 +174,18 @@
     }
     footer strong { color: rgba(255,255,255,0.8); }
 
+    /* DAY MAP */
+    .day-map { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px dashed #f0e0d6; }
+    .day-map-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+    .day-map-label { font-size: 0.82rem; font-weight: 700; color: var(--orange); }
+    .map-route-btn {
+      font-size: 0.75rem; background: var(--orange); color: white;
+      text-decoration: none; padding: 0.3rem 0.85rem; border-radius: 50px;
+      font-weight: 600; transition: background 0.2s; white-space: nowrap;
+    }
+    .map-route-btn:hover { background: var(--dark); }
+    .day-map iframe { border-radius: 12px; display: block; border: none; width: 100%; height: 280px; }
+
     @media (max-width: 600px) {
       nav { padding: 0 1rem; }
       .nav-links { gap: 1rem; }
@@ -327,6 +339,13 @@
           </div>
         </div>
       </div>
+      <div class="day-map">
+        <div class="day-map-header">
+          <span class="day-map-label">📍 DAY 1 이동 경로 — 나고야역 · 오아시스21 · 사카에</span>
+          <a class="map-route-btn" href="https://www.google.com/maps/dir/Nagoya+Station/Oasis+21+Nagoya/Sakae+Nagoya" target="_blank">구글맵에서 보기 →</a>
+        </div>
+        <iframe src="https://maps.google.com/maps?q=Sakae+Nagoya&output=embed&z=14&hl=ko" allowfullscreen loading="lazy"></iframe>
+      </div>
     </div>
   </div>
 
@@ -394,6 +413,13 @@
             <span class="tl-tag tag-food">식사</span>
           </div>
         </div>
+      </div>
+      <div class="day-map">
+        <div class="day-map-header">
+          <span class="day-map-label">📍 DAY 2 이동 경로 — 나고야역 → 레고랜드 재팬 (아오나미선)</span>
+          <a class="map-route-btn" href="https://www.google.com/maps/dir/Nagoya+Station/Legoland+Japan+Resort" target="_blank">구글맵에서 보기 →</a>
+        </div>
+        <iframe src="https://maps.google.com/maps?q=Legoland+Japan+Resort&output=embed&z=15&hl=ko" allowfullscreen loading="lazy"></iframe>
       </div>
     </div>
   </div>
@@ -463,6 +489,13 @@
           </div>
         </div>
       </div>
+      <div class="day-map">
+        <div class="day-map-header">
+          <span class="day-map-label">📍 DAY 3 이동 경로 — 호빵맨뮤지엄 → 나고야항수족관</span>
+          <a class="map-route-btn" href="https://www.google.com/maps/dir/Nagoya+Anpanman+Children%27s+Museum/Nagoya+Port+Aquarium" target="_blank">구글맵에서 보기 →</a>
+        </div>
+        <iframe src="https://maps.google.com/maps?q=Nagoya+Port+Aquarium&output=embed&z=14&hl=ko" allowfullscreen loading="lazy"></iframe>
+      </div>
     </div>
   </div>
 
@@ -531,6 +564,13 @@
           </div>
         </div>
       </div>
+      <div class="day-map">
+        <div class="day-map-header">
+          <span class="day-map-label">📍 DAY 4 이동 경로 — 나고야성 → 도쿠가와엔 → 오스 상점가</span>
+          <a class="map-route-btn" href="https://www.google.com/maps/dir/Nagoya+Castle/Tokugawa-en+Garden+Nagoya/Osu+Shopping+Street+Nagoya" target="_blank">구글맵에서 보기 →</a>
+        </div>
+        <iframe src="https://maps.google.com/maps?q=Nagoya+Castle&output=embed&z=14&hl=ko" allowfullscreen loading="lazy"></iframe>
+      </div>
     </div>
   </div>
 
@@ -589,6 +629,13 @@
             <span class="tl-tag tag-must">귀국</span>
           </div>
         </div>
+      </div>
+      <div class="day-map">
+        <div class="day-map-header">
+          <span class="day-map-label">📍 DAY 5 이동 경로 — 나고야역 → 센트레아 국제공항 (뮤스카이 28분)</span>
+          <a class="map-route-btn" href="https://www.google.com/maps/dir/Nagoya+Station/Chubu+Centrair+International+Airport" target="_blank">구글맵에서 보기 →</a>
+        </div>
+        <iframe src="https://maps.google.com/maps?q=Chubu+Centrair+International+Airport&output=embed&z=13&hl=ko" allowfullscreen loading="lazy"></iframe>
       </div>
     </div>
   </div>
